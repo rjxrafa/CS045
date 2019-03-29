@@ -3,11 +3,7 @@
 
 int main() {
 
-//    sets();
-    string line = "   testing    here  a";
+    sets();
 
-    trimLineAndStandardize(line);
-
-    cout << line;
     return 0;
 }
