@@ -1,38 +1,11 @@
 /**
- * @brief  This program will take a given input for a user's name and normalizes the input.
  * @author  Rafael Betita
- * @date 2019-03-29
+ * @date    2019-03-30
  *
- * This assignment was adapted from Paul Wilkinson's CS045 lectures. The program expects an
- * unformatted input for the user's first and last name (optionally middle initial) and outputs
- * a formatted string as {LastName, FirstName Initial}. Any leading or trailing spaces are omitted.
- *
- * @example
- * Your name: rafael betita
- * Your name is: Betita, Rafael
- * Your name: Paul  J    wiLkinsoN
- * Your name is: Wilkinson, Paul J
- * Your name: Rafael L L L Betita
- * Detected invalid input after trying to normalize. Invalid characters are in rafael l l l betita
- * Your name: 1234
- * Detected invalid input after trying to normalize. Invalid characters are in 1234
+ *  This assignment was adapted from Paul Wilkinson's CS045 lectures. See header for more info on implementation.
  */
 
-#ifndef CS045_ALTERNATE_IF_ELSE_CPP
-#define CS045_ALTERNATE_IF_ELSE_CPP
-
-#include <iostream>
-
-using namespace std;
-
-bool getInput(string &line);
-bool normalize(string &line, const string &charsWeWant);
-bool hasMiddleInitial(string &line); // todo: implement middle initial func
-void trimSpaces(string &line);
-void loadCharsWeWant(string &chars);
-bool invalidInput(const string &line);
-bool process(string &line);
-void capitalizeFirstChar(string &name);
+#include "alternate_if_else.h"
 
 int alternateIfElse() {
     string line, charsWeWant;
@@ -114,6 +87,3 @@ void capitalizeFirstChar(string &name) {
     while ((pos = name.find(' ', pos)) < name.size())
         name[++pos] = toupper(name[pos]);
 }
-
-#endif //CS045_ALTERNATE_IF_ELSE_CPP
-
