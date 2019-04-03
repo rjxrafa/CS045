@@ -248,8 +248,13 @@ void modifySet(const string &suffix, map<char, bitset<16>> &mySets) {
     if(mySets.count(modifyThisSet)) {
         char temp(0);
         int setValue(0);
+        bool complement(0);
         bitset<16> userSet(0);
         ss >> temp >> temp; // This assumes that =  and "{" are getting picked up. todo: "~"
+
+        if (temp == '~' && ss >> temp) // If NOT is found, pick up the curly bracket
+            complement = true;
+
         while (ss >> setValue) {
             if (setValue > 15u) {
                 cout << "Invalid number found";
@@ -261,6 +266,8 @@ void modifySet(const string &suffix, map<char, bitset<16>> &mySets) {
                 ss.get();
         }
         mySets[modifyThisSet] = userSet;
+        if (complement)
+            mySets[modifyThisSet].flip();
         cout << "Succesfully modified set " << modifyThisSet << endl;
 
     } else {
