@@ -4,15 +4,21 @@
  * @date    2019-03-29
  */
 
+#include <sstream>
+#include <assert.h>
+#include <vector>
 #include "sets.h"
 
 int sets() {
     string line;
     map<string, int> commands;
+    map<char, bitset<16>> mySets;
+
+    loadSets(mySets);
     loadCommands(commands);
 
     while (getLine(line))
-        process(line, commands);
+        process(line, commands, mySets);
 
     return 0;
 }
@@ -69,23 +75,24 @@ string display(const bitset<16> &set) {
 //}
 
 /**
- * @brief Processes commands for execution
- * @param line User input as a string
- * @param commands Preloaded list of commands to be accessed
+ * @brief           Processes commands for execution
+ * @param line      User input as a string
+ * @param commands  Preloaded list of commands to be accessed
+ * @param mySets    Preloaded list of sets to be modified
  *
  * This function takes in a user's input (e.g. SET C = A * B) and processes the given line to be executed.
  * The function will firstly trim the line for extra spaces within the input and consequently will display the
  * sanitized line. Afterwards, the function calls findCommand, which takes in 2 strings (command, suffix) to be
  * executed using the executeCommand, which takes in the newly formed command and suffix as well as the commands map.
  */
-void process(string line, const map<string, int> &commands) {
+void process(string line, const map<string, int> &commands, map<char, bitset<16>> &mySets){
     string command, suffix;
     cout << "Processing...\n";
     trimLineAndStandardize(line);
     cout << line << endl;
     findCommand(line, command, suffix);
     cout << "Command: " << " Suffix: " << suffix << endl;
-    executeCommand(command, suffix, commands);
+    executeCommand(command, suffix, commands, mySets);
 }
 
 /**
@@ -95,7 +102,7 @@ void process(string line, const map<string, int> &commands) {
 void loadCommands(map<string, int> &commands) {
     commands["LOAD"] = 0;
     commands["SAVE"] = 1;
-    commands["SET"] = 2;
+    commands["SET"]  = 2;
     commands["HELP"] = 3;
     commands["LIST"] = 4;
     commands["EXIT"] = 5;
@@ -147,7 +154,11 @@ void findCommand(const string &line, string &command, string &suffix) {
  * @param suffix  a reference to the suffix string
  * @param commands a map to a list of preloaded commands to be executed
  */
-void executeCommand(const string &command, const string &suffix, const map<string, int> &commands) {
+void executeCommand(const string &command,
+                    const string &suffix,
+                    const map<string, int> &commands,
+                    map<char, bitset<16>> &mySets) {
+
     int whatToDo;
     if (commands.count(command))
         whatToDo = commands.at(command);
@@ -160,12 +171,13 @@ void executeCommand(const string &command, const string &suffix, const map<strin
         case 1: // SAVE
             break;
         case 2: // SET
+            modifySet(suffix, mySets);
             break;
         case 3: // HELP
             helpMe(cout);
             break;
         case 4: // LIST
-            listSets(cout);
+            listSets(cout, mySets);
             break;
         case 5: // EXIT
             cout << "\nExiting program. Thanks!";
@@ -202,10 +214,10 @@ void helpMe(ostream &out) {
  * @brief This function takes in an ostream and outputs the current values for all available sets.
  * @param out Output stream to be printed to.
  */
-void listSets(ostream &out) {
-    out << "SET A = {" << display(mySets::a) << "}\n";
-    out << "SET B = {" << display(mySets::b) << "}\n";
-    out << "SET C = {" << display(mySets::c) << "}\n";
+void listSets(ostream &out, map<char, bitset<16>> &mySets) {
+    out << "SET A = {" << display(mySets['A']) << "}\n";
+    out << "SET B = {" << display(mySets['B']) << "}\n";
+    out << "SET C = {" << display(mySets['C']) << "}\n";
 }
 
 /**
@@ -220,22 +232,58 @@ void listSets(ostream &out) {
  * C = A+B // Modify set C's domain based on the union of A&B
  * C = A*B // Modify set C's domain based on the intersection of A&B
  * C = ~A // Modify set C's domain based on A's complement
- * C = ~{A} // Modify set C's domain based on A's complement
+ * C = ~{1,2,3} // Modify set C's domain based on the given complement
  * C = B\C // Modify set C's domain based on the set difference of B\C
  * C = {n}\{n}// Modify set C's domain based on the set difference of the first and second set
  */
-void modifySet(string const &suffix) {
+void modifySet(const string &suffix, map<char, bitset<16>> &mySets) {
 // todo: complement of an empty set error
 // todo: input validation ~{A+B}?
+// todo: this takes in duplicate set items
+// todo: this allows for missing curly brackets
+
+    stringstream ss(suffix);
+    char modifyThisSet;
+    ss >> modifyThisSet;
+    if(mySets.count(modifyThisSet)) {
+        char temp(0);
+        int setValue(0);
+        bitset<16> userSet(0);
+        ss >> temp >> temp; // This assumes that =  and "{" are getting picked up. todo: "~"
+        while (ss >> setValue) {
+            if (setValue > 15u) {
+                cout << "Invalid number found";
+                return;
+            } else {
+                userSet[setValue] = true;
+            }
+            if (ss.peek() == ',')
+                ss.get();
+        }
+        mySets[modifyThisSet] = userSet;
+        cout << "Succesfully modified set " << modifyThisSet << endl;
+
+    } else {
+        cout << "Set not found" << endl;
+        return;
+    }
+
+
+
+
 }
 
-/**
- * This namespace includes the sets that the sets program will be using to modify.
- */
-namespace mySets {
-    bitset<16> a ("111111111111111") ;
-    bitset<16> b = 129;
-    bitset<16> c = 34;
+bitset<16> returnBitset(string &suffix) {
+    bitset<16> temp;
+    size_t pos = -1;
+
+
+    return temp;
 }
 
+void loadSets(map<char, bitset<16>> &mySets) {
+    mySets['A'] = 0;
+    mySets['B'] = 0;
+    mySets['C'] = 0;
+}
 
