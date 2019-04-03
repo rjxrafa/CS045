@@ -252,25 +252,71 @@ void modifySet(const string &suffix, map<char, bitset<16>> &mySets) {
         bitset<16> userSet(0);
         ss >> temp >> temp; // This assumes that =  and "{" are getting picked up. todo: "~"
 
-        if (temp == '~' && ss >> temp) // If NOT is found, pick up the curly bracket
+        if (temp == '~' && ss >> temp) { // If NOT is found, pick up the curly bracket
             complement = true;
+            if (isalpha(temp)) {
+                userSet = mySets[temp];
+                mySets[modifyThisSet] = userSet.flip();
+                cout << "Successfully modified set " << modifyThisSet << " to set " << temp << endl;
+                return;
+            }
+        }
 
-        while (ss >> setValue) {
-            if (setValue > 15u) {
-                cout << "Invalid number found";
+        if (temp == '{') {
+            while (ss >> setValue) { // If we are able to get an integer, otherwise try to get a letter
+                if (setValue > 15u ) { // && (temp < 'A' || temp > 'C') no input validation here for set letters
+                    cout << "Invalid input found";
+                    return;
+                } else {
+                    switch(ss.peek()) {
+                        case '+':
+                            ss.get(); // no validation for next char
+                            mySets[modifyThisSet] = mySets[temp] | mySets[ss.get()];
+                            cout << "Set succesfully modified union)" << endl;
+                            return;
+                        case '*':
+                            ss.get(); // no validation for next char
+                            mySets[modifyThisSet] = mySets[temp] & mySets[ss.get()];
+                            cout << "Set succesfully modified union)" << endl;
+                            return;
+                        default:
+                            userSet[setValue] = true;
+                            if (ss.peek() == ',')
+                                ss.get();
+                    }
+
+                }
+            }
+        } else {
+            if (temp < 'A' || temp > 'C') { // && (temp < 'A' || temp > 'C') no input validation here for the next letter
+                cout << "No such set "<< temp << " found" << endl;
                 return;
             } else {
-                userSet[setValue] = true;
+                switch(ss.peek()) {
+                    case '+':
+                        ss.get(); // no validation for next char
+                        mySets[modifyThisSet] = mySets[temp] | mySets[ss.get()]; //todo: input validation for ss.get()
+                        cout << "Set succesfully modified (union)" << endl;
+                        return;
+                    case '*':
+                        ss.get(); // no validation for next char
+                        mySets[modifyThisSet] = mySets[temp] & mySets[ss.get()];
+                        cout << "Set succesfully modified (intersection)" << endl;
+                        return;
+                    default:
+                        cout << "Invalid operation found" << endl;
+                        return;
+                }
+
             }
-            if (ss.peek() == ',')
-                ss.get();
+
         }
+
         mySets[modifyThisSet] = userSet;
         if (complement)
             mySets[modifyThisSet].flip();
         cout << "Succesfully modified set " << modifyThisSet << endl;
-
-    } else {
+    }  else {
         cout << "Set not found" << endl;
         return;
     }
