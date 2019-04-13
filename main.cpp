@@ -7,7 +7,7 @@ int main() {
 //
 //    sets();
 //    alternateIfElse();
-    morse();
+    morse::morse();
 
 
 

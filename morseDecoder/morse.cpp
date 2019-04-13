@@ -1,13 +1,15 @@
 #include "morse.h"
 
-void morse() {
+void morse::morse() {
     std::map<std::string, char> myMorseCode;
     loadMorseMap(myMorseCode);
+    std::string input;
 
-    std::string test = "THIS       IS A STR   ING";
-    std::cout << sanitizeInput(test);
-
+    while (getInput(input))
     try {
+        std::cout << "Translation: " << parseMorse(input, myMorseCode) << std::endl;
+//        std::cout << parseMorse("... --- ...", myMorseCode) << std::endl;
+//        std::cout << parseMorse(". - -...", myMorseCode) << std::endl;
 //        std::cout << parseChar(".-", myMorseCode);
 //        std::cout << parseChar(".-.", myMorseCode);
 //        std::cout << parseChar(".--.", myMorseCode);
@@ -30,7 +32,7 @@ void morse() {
  * @param morseMap - A map that contains all morse characters mapped to alphanumeric symbols
  * @return - Returns a char literal if successful, else throws an error
  */
-char parseChar(const std::string &input, std::map<std::string, char> &morseMap) {
+char morse::parseChar(const std::string &input, std::map<std::string, char> &morseMap) {
     if (morseMap.count(input))
         return morseMap.at(input);
     else
@@ -41,7 +43,7 @@ char parseChar(const std::string &input, std::map<std::string, char> &morseMap) 
  * This function loads a given map with the international morse code.
  * @param myMap
  */
-void loadMorseMap(std::map<std::string, char> &myMap) {
+void morse::loadMorseMap(std::map<std::string, char> &myMap) {
 //    todo allow for US/morse codes
     myMap[".-"] = 'A';
     myMap["-..."] = 'B';
@@ -82,7 +84,7 @@ void loadMorseMap(std::map<std::string, char> &myMap) {
     myMap[".-.-.-"] = '.';
 }
 
-std::string sanitizeInput(const std::string &input) {
+std::string morse::sanitizeInput(const std::string &input) {
     std::string temp(input);
 
     // deletes leading & trailing spaces
@@ -110,4 +112,24 @@ std::string sanitizeInput(const std::string &input) {
     }
 
     return temp;
+}
+
+std::string morse::parseMorse(const std::string &input, std::map<std::string, char> &myMorseMap) {
+    std::stringstream ss(input), out;
+    std::string tempChar;
+
+    while (ss >> tempChar) {
+        out << parseChar(tempChar, myMorseMap) << ' ';
+    }
+
+    return out.str();
+}
+
+bool morse::getInput(std::string& input) {
+    std::cout << "Input morse: ";
+
+    getline(std::cin, input);
+    fflush(stdin);
+
+    return !input.empty();
 }
