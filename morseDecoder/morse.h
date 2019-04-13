@@ -9,7 +9,7 @@
 
 void morse();
 void getInput();
-std::string& parseMorse();
+std::string sanitizeInput(const std::string &input);
 char parseChar(const std::string &input, std::map<std::string, char> &morseMap);
 void loadMorseMap(std::map<std::string, char> &myMap);
 

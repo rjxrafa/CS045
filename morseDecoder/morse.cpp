@@ -4,11 +4,14 @@ void morse() {
     std::map<std::string, char> myMorseCode;
     loadMorseMap(myMorseCode);
 
+    std::string test = "THIS       IS A STR   ING";
+    std::cout << sanitizeInput(test);
+
     try {
-        std::cout << parseChar(".-", myMorseCode);
-        std::cout << parseChar(".-.", myMorseCode);
-        std::cout << parseChar(".--.", myMorseCode);
-        std::cout << parseChar(".---.", myMorseCode);
+//        std::cout << parseChar(".-", myMorseCode);
+//        std::cout << parseChar(".-.", myMorseCode);
+//        std::cout << parseChar(".--.", myMorseCode);
+//        std::cout << parseChar(".---.", myMorseCode);
     }
     catch (std::exception& e)
     {
@@ -21,10 +24,12 @@ void morse() {
 
 }
 
-std::string &parseMorse() {
-//    return <#initializer#>;
-}
-
+/**
+ * This function parses a given morse character as an alphabetical char. Throws an invalid morse char error otherwise.
+ * @param input - Takes in a single morse character represented as a string
+ * @param morseMap - A map that contains all morse characters mapped to alphanumeric symbols
+ * @return - Returns a char literal if successful, else throws an error
+ */
 char parseChar(const std::string &input, std::map<std::string, char> &morseMap) {
     if (morseMap.count(input))
         return morseMap.at(input);
@@ -32,6 +37,10 @@ char parseChar(const std::string &input, std::map<std::string, char> &morseMap) 
         throw std::out_of_range("\nInvalid morse character.");
 }
 
+/**
+ * This function loads a given map with the international morse code.
+ * @param myMap
+ */
 void loadMorseMap(std::map<std::string, char> &myMap) {
 //    todo allow for US/morse codes
     myMap[".-"] = 'A';
@@ -71,4 +80,34 @@ void loadMorseMap(std::map<std::string, char> &myMap) {
     myMap["----."] = '9';
     myMap["-----"] = '0';
     myMap[".-.-.-"] = '.';
+}
+
+std::string sanitizeInput(const std::string &input) {
+    std::string temp(input);
+
+    // deletes leading & trailing spaces
+    while (temp[0] == ' ')
+        temp.erase(0,1);
+    while (temp[temp.size()-1] == ' ')
+        temp.erase(temp.size()-1);
+
+    // sets all uppercase characters to lower
+    for (size_t i = 0 ; i < temp.size(); ++i)
+        temp[i] = tolower(temp[i]);
+
+    // This algorithm will replace all instances of 7 spaces with an underscore as a token
+    size_t pos = -1;
+    while ((pos = temp.find("       ", pos+1)) < temp.size())
+    { // careful, we need the pos to be evaluated first, which is why we add the paren
+        temp.replace(pos, 7, "__");
+    }
+
+    // This algorithm will replace all instances of 3 spaces with an underscore as a token
+    pos = -1;
+    while ((pos = temp.find("   ", pos+1)) < temp.size())
+    { // careful, we need the pos to be evaluated first, which is why we add the paren
+        temp.replace(pos, 3, "_");
+    }
+
+    return temp;
 }
