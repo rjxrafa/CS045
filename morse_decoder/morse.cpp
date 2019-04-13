@@ -84,6 +84,12 @@ void morse::loadMorseMap(std::map<std::string, char> &myMap) {
     myMap[".-.-.-"] = '.';
 }
 
+/**
+ * This function sanitizes input by removing leading and trailing spaces. This will also convert spaces as tokens.
+ * Currently deprecated, not used in actual program as of implementation.
+ * @param input string to be sanitized
+ * @return sanitized string
+ */
 std::string morse::sanitizeInput(const std::string &input) {
     std::string temp(input);
 
@@ -114,6 +120,12 @@ std::string morse::sanitizeInput(const std::string &input) {
     return temp;
 }
 
+/**
+ * This function parses a given string containing morse as alphabetic characters
+ * @param input given string input as morse
+ * @param myMorseMap given morse map to compare against
+ * @return translated morse input
+ */
 std::string morse::parseMorse(const std::string &input, std::map<std::string, char> &myMorseMap) {
     std::stringstream ss(input), out;
     std::string tempChar;
@@ -125,6 +137,11 @@ std::string morse::parseMorse(const std::string &input, std::map<std::string, ch
     return out.str();
 }
 
+/**
+ * This function will take in user input as a string
+ * @param input Given string to be inserted into
+ * @return true if user input is not empty
+ */
 bool morse::getInput(std::string& input) {
     std::cout << "Input morse: ";
 
