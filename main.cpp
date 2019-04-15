@@ -9,8 +9,6 @@ int main() {
 //    sets();
 //    alternateIfElse();
 //    morse::morse();
-//    std::bitset<7> test("1111111");
-//    seg_display::displaySegment(test, cout);
     seg_display::display();
 
 

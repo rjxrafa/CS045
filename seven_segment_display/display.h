@@ -1,6 +1,6 @@
 /**
  * @author  Rafael Betita
- * @date    2019-04-14
+ * @date    2019-04-15
  *
  * @brief   This program simulates a seven segment display by creating a relation
  *          between the numbers 0 to 9 and their corresponding segments (from 0 to 6)
@@ -13,6 +13,8 @@
 #include <map>
 #include <iostream>
 #include <bitset>
+#include <cmath>
+#include <sstream>
 
 namespace seg_display{
 
@@ -21,6 +23,6 @@ bool getInput(std::string &userInput);
 void loadSegmentMap(std::map<int, std::bitset<7>> &mySegmentMap);
 void displaySegment(std::bitset<7> &printMe, std::ostream &os);
 
-};
+}
 
 #endif //CS045_DISPLAY_H

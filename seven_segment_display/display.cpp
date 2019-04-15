@@ -1,7 +1,11 @@
-#include <cmath>
-#include <sstream>
 #include "display.h"
 
+/**
+ * @brief   This is the main function to call when running the program.
+ *
+ * @bug     This implementation allows for multiple digits, but will perform undefined behavior
+ *          when passing invalid inputs such as "123a3"
+ */
 void seg_display::display() {
 
     try {
@@ -43,7 +47,10 @@ bool seg_display::getInput(std::string &userInput) {
     }
 }
 
-
+/**
+ * This function loads a map with the relation between integers and its corresponding segment bits.
+ * @param mySegmentMap
+ */
 void seg_display::loadSegmentMap(std::map<int, std::bitset<7>> &mySegmentMap) {
     mySegmentMap[0] = std::bitset<7>("0111111");
     mySegmentMap[1] = std::bitset<7>("0000110");
