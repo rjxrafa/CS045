@@ -17,7 +17,7 @@
 namespace seg_display{
 
 void display();
-bool getInput(std::string userInput);
+bool getInput(std::string &userInput);
 void loadSegmentMap(std::map<int, std::bitset<7>> &mySegmentMap);
 void displaySegment(std::bitset<7> &printMe, std::ostream &os);
 
