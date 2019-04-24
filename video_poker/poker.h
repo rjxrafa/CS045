@@ -8,6 +8,7 @@
 #include <iostream>
 
 namespace poker{
+    void main();
     void loadCardValueAndSuits(std::string faceValue[], std::string suitValue[]);
     void shuffleDeck(bool deck[]);
     bool again(std::string title);
