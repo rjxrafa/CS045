@@ -5,64 +5,73 @@
 #include "poker.h"
 
 void poker::main() {
-    initGame();
     std::string faceValue[13], suitValue[4];
     bool deck[52];
     unsigned int hand[5];
+
+    initGame(faceValue, suitValue, deck);
+    player me;
+
     srand(time(0));
-    loadCardValueAndSuits(faceValue, suitValue);
-    shuffleDeck(deck);
 
     do
     {
-        displayMainWindow();
-//        dealAHand(deck, hand);
-//        displayHand(hand, suitValue, faceValue);
+        displayGame();
+        dealAHand(deck, hand);
 //        hand[0] = 1;hand[1] = 2;hand[2] = 3;hand[3] = 4;hand[4] = 5;
-//        scoreHand(hand);
-        hand[0] = 13;hand[1] = 23;hand[2] = 25;hand[3] = 24;hand[4] = 22; // flush
+//        hand[0] = 13;hand[1] = 23;hand[2] = 25;hand[3] = 24;hand[4] = 22; // flush
 //        hand[0] = 12;hand[1] = 32;hand[2] = 34;hand[3] = 26;hand[4] = 13; // flush
-        scoreHand(hand);
-
+        displayCoins(&me);
+        me.coins--;
+        scoreHand(hand, &me);
         displayHand(hand, suitValue, faceValue);
 
-    } while (again("Do you want to do this again? "));
+    } while (playGame());
     exitGame();
 
 }
 
 void poker::loadCardValueAndSuits(std::string *faceValue, std::string *suitValue) {
-    suitValue[0] = "Spades";
-    suitValue[1] = "Diamonds";
-    suitValue[2] = "Clubs";
-    suitValue[3] = "Hearts";
-    faceValue[0] = "Ace";
-    faceValue[1] = "Two";
-    faceValue[2] = "Three";
-    faceValue[3] = "Four";
-    faceValue[4] = "Five";
-    faceValue[5] = "Six";
-    faceValue[6] = "Seven";
-    faceValue[7] = "Eight";
-    faceValue[8] = "Nine";
-    faceValue[9] = "Ten";
-    faceValue[10] = "Jack";
-    faceValue[11] = "Queen";
-    faceValue[12] = "King";
+//    suitValue[0] = "♠";
+//    suitValue[1] = "♦";
+//    suitValue[2] = "♣";
+//    suitValue[3] = "♥";
+    suitValue[0] = "S";
+    suitValue[1] = "D";
+    suitValue[2] = "C";
+    suitValue[3] = "H";
+    faceValue[0] = "A";
+    faceValue[1] = "2";
+    faceValue[2] = "3";
+    faceValue[3] = "4";
+    faceValue[4] = "5";
+    faceValue[5] = "6";
+    faceValue[6] = "7";
+    faceValue[7] = "8";
+    faceValue[8] = "9";
+    faceValue[9] = "10";
+    faceValue[10] = "J";
+    faceValue[11] = "Q";
+    faceValue[12] = "K";
 }
 
 void poker::shuffleDeck(bool *deck) {
-    std::cout << "Shuffling cards..." << std::endl;
+//    std::cout << "Shuffling cards..." << "\n\r";
     for (unsigned int i = 0; i < 52; ++i) {
         deck[i] = false;
     }
 }
 
 bool poker::again(std::string title) {
-    std::string answer;
-    std::cout << title << " ";
-    std::cin >> answer;
-    return toupper(answer[0]) == 'Y';
+    int height = 3,
+        width = title.length()+2,
+        ypos = 5,
+        xpos = 22;
+    WINDOW * prompt = newwin(height, width, ypos, xpos);
+    box(prompt,1,1);
+    mvwprintw(prompt, 1,1, title.c_str());
+    wrefresh(prompt);
+    return toupper(getch()) == 'Y';
 }
 
 /**
@@ -97,48 +106,82 @@ void poker::dealAHand(bool *deck, unsigned int *hand) {
 }
 
 void poker::displayHand(unsigned int *hand, std::string *suitValue, std::string *faceValue) {
-    std::cout << "Your current hand is: \n";
-    for (unsigned int i = 0; i < 5; ++i)
-        std::cout << faceValue[hand[i]%13] << " of "
-                  << suitValue[hand[i]/13];
+    int height = 6,
+        width = 5+3,
+        xpos = 15,
+        ypos = 16,
+        spacing = 10;
+
+    for (unsigned int i = 0; i < 5; ++i) {
+        WINDOW * card = newwin(height, width, ypos, xpos+(spacing*i));
+        box(card, 0, 0);
+        mvwaddstr(card, 1,1, faceValue[hand[i]%13].c_str());
+        mvwaddstr(card, 2,1, suitValue[hand[i]/13].c_str());
+
+        refresh();
+        wrefresh(card);
+    }
+
+
+
+
+    refresh();
+
 }
 
-void poker:: scoreHand(unsigned int *hand) {
+void poker::displayScore(poker::player *my) {
+    unsigned int height = 3,
+                 width = 10,
+                 posy = 0,
+                 posx = 0;
 
-    playerHand my;
+    WINDOW * score = newwin(height, width, posy, posx);
+    box(score, 0,0);
+    wrefresh(score);
 
+    //    if (my->royalStraightFlush)
+//        std::cout << "Royal straight flush" << "\n\r";
+//    if (my->hasAceKing)
+//        std::cout << "Last Two Ace King" << "\n\r";
+//    if (my->fourOfAKind)
+//        std::cout << "Four of a Kind" << "\n\r";
+//    if (my->threeOfAKind)
+//        std::cout << "Three of a kind" << "\n\r";
+//    if (my->straight)
+//        std::cout << "Straight" << "\n\r";
+//    if (my->flush)
+//        std::cout << "Flush" << "\n\r";
+//    if (my->fullHouse)
+//        std::cout << "Player has full house" << "\n\r";
+    if (my->pairs > 1) {
+        my->coins+=2;
+        clrtoeol();
+    }
+
+    move(10,10);
+    mvprintw(10,10, "my pairs %d", my->pairs);
+//        std::cout << "Player has " << my.pairs << ((my.pairs == 1) ? " pair" : " pairs") << "\n\r";
+
+}
+
+void poker::scoreHand(unsigned int *hand, player *my) {
+
+    resetPlayer(my);
 
     for (size_t i = 0; i < 5; ++i) {
 
-        ++my.faceValue[hand[i]%13];
-        ++my.suitValue[hand[i]/13];
+        ++my->faceValue[hand[i]%13];
+        ++my->suitValue[hand[i]/13];
     }
 
-    checkForHand(&my);
+    checkForHand(my);
 
-    my.fullHouse = my.threeOfAKind & (my.pairs == 1);
-    my.royalStraightFlush = my.hasAceKing & my.straight & my.flush;
-
-    if (my.royalStraightFlush)
-        std::cout << "Royal straight flush" << std::endl;
-    if (my.hasAceKing)
-        std::cout << "Last Two Ace King" << std::endl;
-    if (my.fourOfAKind)
-        std::cout << "Four of a Kind" << std::endl;
-    if (my.threeOfAKind)
-        std::cout << "Three of a kind" << std::endl;
-    if (my.straight)
-        std::cout << "Straight" << std::endl;
-    if (my.flush)
-        std::cout << "Flush" << std::endl;
-    if (my.fullHouse)
-        std::cout << "Player has full house" << std::endl;
-    if (my.pairs)
-        std::cout << "Player has " << my.pairs << ((my.pairs == 1) ? " pair" : " pairs") << std::endl;
+    my->fullHouse = my->threeOfAKind & (my->pairs == 1);
+    my->royalStraightFlush = my->hasAceKing & my->straight & my->flush;
 
 }
 
-void poker::checkForHand(playerHand *my) {
+void poker::checkForHand(player *my) {
 
     // Checks for pairs
     for (size_t i = 0; i < 13; ++i) {
@@ -151,7 +194,7 @@ void poker::checkForHand(playerHand *my) {
 
         }
     }
-    
+
     // Check for flush (5 cards of the same suit)
     for (size_t j = 0; j < 4; ++j) {
         my->flush |= my->suitValue[j] == 5;
@@ -171,22 +214,91 @@ void poker::checkForHand(playerHand *my) {
                      my->faceValue [0] == 1;
 }
 
-void poker::initGame() {
+void poker::initGame(std::string faceValue[52], std::string suitValue[4], bool deck[52]) {
     initscr();
+    setlocale(LC_ALL,"");
     cbreak();
     keypad(stdscr, TRUE);
+    curs_set(0);
+    noecho();
+    loadCardValueAndSuits(faceValue, suitValue);
+    shuffleDeck(deck);
+
 }
 
 void poker::exitGame() {
     endwin();
 }
 
-void poker::displayMainWindow() {
-    int height = 22;
-    int width = 78;
-    int xpos = 1;
-    int ypos = 1;
+void poker::displayGame() {
+    int height = 24;
+    int width = 80;
+    int xpos = 0;
+    int ypos = 0;
     WINDOW * mainWin = newwin(height, width, ypos, xpos);
     box(mainWin, 0,0);
+    wrefresh(mainWin);
     refresh();
+}
+
+void poker::displayCoins(poker::player *my) {
+    int height = 3,
+        width = 20,
+        ypos = 1,
+        xpos = 59;
+    WINDOW * coins = newwin(height, width, ypos, xpos);
+    box(coins, 0,0);
+
+    mvwprintw(coins, 1,1, "COINS: %d", my->coins);
+    wrefresh(coins);
+
+}
+
+bool poker::playGame() {
+    unsigned int height = 3,
+                 width = 15,
+                 posy = 0,
+                 posx = 0;
+    WINDOW * bet = newwin(height, width, posy, posx);
+    box(bet, 0, 0);
+
+    unsigned int wager = 1,
+                 input;
+    input = getch();
+    switch(1) {
+        case KEY_LEFT:
+            if (wager > 1)
+                --wager;
+            break;
+        case KEY_RIGHT:
+            if (wager < 5)
+                wager++;
+            break;
+        case KEY_F(1):
+        case 10:
+            return false;
+
+        default:
+            break;
+    }
+    mvwprintw(bet, 1,1, "  Bet: < %d >", wager);
+    wrefresh(bet);
+
+    return true;
+}
+
+void poker::resetPlayer(poker::player *my) {
+    for (auto& x : my->faceValue)
+        x = 0;
+    for (auto& x : my->faceValue)
+        x = 0;
+
+    my->pairs = 0;
+    my->royalStraightFlush = false;
+    my->hasAceKing = false;
+    my->fourOfAKind = false;
+    my->threeOfAKind = false;
+    my->straight = false;
+    my->flush = false;
+    my->fullHouse = false;
 }

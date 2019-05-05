@@ -10,7 +10,8 @@
 
 namespace poker{
 
-    struct playerHand {
+    struct player {
+        int coins = 500;
         unsigned int faceValue[13] = {0,0,0,0,0,0,0,0,0,0,0,0,0},
                 suitValue[4] = {0,0,0,0},
                 pairs = 0;
@@ -22,7 +23,6 @@ namespace poker{
         bool straight = false;
         bool flush = false;
         bool fullHouse = false;
-
     };
 
     void main();
@@ -30,13 +30,17 @@ namespace poker{
     void shuffleDeck(bool deck[]);
     bool again(std::string title);
     void dealAHand(bool deck[], unsigned int hand[5]);
+    void scoreHand(unsigned int hand[5], player *my);
     void displayHand(unsigned int hand[5], std::string suitValue[], std::string faceValue[]);
-    void scoreHand(unsigned int hand[5]);
-    void checkForHand(playerHand * my);
-    void scoreHand(unsigned int hand[5]);
-    void initGame();
+    void displayCoins(player *my);
+    void displayScore(player *my);
+    void displayGame();
+    void checkForHand(player *my);
+    void initGame(std::string faceValue[13], std::string suitValue[4], bool deck[52]);
     void exitGame();
-    void displayMainWindow();
+    bool playGame();
+    void resetPlayer(player *my);
+
 
 
 }
