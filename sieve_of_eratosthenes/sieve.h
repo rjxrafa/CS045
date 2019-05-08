@@ -6,11 +6,13 @@
 #define CS045_SIEVE_H
 
 #include <iostream>
+#include <vector>
 
 namespace sieve {
 
 int main();
 int getInput(std::string prompt);
+void getPrimes(const int &max, std::vector<int> &v);
 
 }
 
