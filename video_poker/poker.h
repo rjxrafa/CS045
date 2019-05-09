@@ -9,6 +9,7 @@
 #define _XOPEN_SOURCE_EXTENDED
 
 #include <iostream>
+#include <fstream>
 #include <locale.h>
 #include <ncursesw/ncurses.h>
 
@@ -28,12 +29,13 @@ namespace poker{
         bool straight = false;
         bool flush = false;
         bool fullHouse = false;
+        bool highCard = false;
     };
 
     void main();
+    void saveGame(player *me);
     void loadCardValueAndSuits(std::string faceValue[], const wchar_t *suitValue[]);
     void shuffleDeck(bool deck[]);
-    bool again(std::string title);
     void dealAHand(bool deck[], unsigned int hand[5]);
     void scoreHand(unsigned int hand[5], player *my);
     void displayHand(unsigned int hand[5], const wchar_t **suitValue, std::string faceValue[]);
@@ -43,7 +45,6 @@ namespace poker{
     void checkForHand(player *my);
     void initGame(std::string faceValue[13], const wchar_t *suitValue[4], bool deck[52]);
     void exitGame();
-    bool playGame();
     void resetPlayer(player *my);
     int makeBet();
 
