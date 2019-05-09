@@ -7,56 +7,36 @@
 
 void poker::main() {
     std::string faceValue[13];
-    wchar_t* suitValue[4];
+    const wchar_t* suitValue[4];
     bool deck[52];
     unsigned int hand[5];
-    player a;
+    player me;
 
     initGame(faceValue, suitValue, deck);
     displayGame();
-    displayCoins(&a);
-    makeBet();
 
-    hand[0] = 12;hand[1] = 32;hand[2] = 34;hand[3] = 26;hand[4] = 13; // flush
-    displayHand(hand, suitValue, faceValue);
-//    printw("Euro\n");
+    while(1) {
+        displayCoins(&me);
+        me.currentBet = makeBet();
+        me.coins -= me.currentBet;
+        displayCoins(&me);
+//        dealAHand(deck,hand);
+        hand[0] = 0;
+        hand[1] = 9;
+        hand[2] = 12;
+        hand[3] = 11;
+        hand[4] = 10;
+        displayHand(hand, suitValue, faceValue);
+        scoreHand(hand, &me);
+        displayScore(&me);
 
+    }
 
-//    WINDOW *mybox = newwin(24,80,0,0);
-//    box(mybox,0,0);
-//    refresh();
-//    wrefresh(mybox);
-//    initscr();
-//    displayGame();
-//    displayCoins(&a);
-//
-//    std::cout << "Test";
-
-
-//    endwin();
-//    player me;
-
-
-//    do
-//    {
-//        displayGame();
-//        dealAHand(deck, hand);
-//        hand[0] = 1;hand[1] = 2;hand[2] = 3;hand[3] = 4;hand[4] = 5;
-//        hand[0] = 13;hand[1] = 23;hand[2] = 25;hand[3] = 24;hand[4] = 22; // flush
-//        displayCoins(&me);
-//        me.coins--;
-//        scoreHand(hand, &me);
-
-    getch();
     exitGame();
-
-
-//    } while (playGame());
-//    exitGame();
 
 }
 
-void poker::loadCardValueAndSuits(std::string *faceValue, wchar_t **suitValue) {
+void poker::loadCardValueAndSuits(std::string *faceValue, const wchar_t **suitValue) {
     suitValue[0] = L"♠";
     suitValue[1] = L"♦";
     suitValue[2] = L"♣";
@@ -131,10 +111,10 @@ void poker::dealAHand(bool *deck, unsigned int *hand) {
 
 }
 
-void poker::displayHand(unsigned int *hand, wchar_t **suitValue, std::string *faceValue) {
+void poker::displayHand(unsigned int *hand, const wchar_t **suitValue, std::string *faceValue) {
     int height = 6,
         width = 5+3,
-        xpos = 15,
+        xpos = 16,
         ypos = 16,
         spacing = 10;
 
@@ -143,14 +123,9 @@ void poker::displayHand(unsigned int *hand, wchar_t **suitValue, std::string *fa
         box(card, 0, 0);
         mvwaddstr(card, 1,1, faceValue[hand[i]%13].c_str());
         mvwaddwstr(card, 2,1, suitValue[hand[i]/13]);
-//cchar_t test = ;
-//        mvwadd_wchstr(card, 2,1, L"f");
         refresh();
         wrefresh(card);
     }
-
-
-
 
     refresh();
 
@@ -158,36 +133,95 @@ void poker::displayHand(unsigned int *hand, wchar_t **suitValue, std::string *fa
 
 void poker::displayScore(poker::player *my) {
     unsigned int height = 3,
-                 width = 10,
-                 posy = 0,
-                 posx = 0;
+                 width = 15,
+                 posy = 8,
+                 posx = 30;
 
     WINDOW * score = newwin(height, width, posy, posx);
     box(score, 0,0);
     wrefresh(score);
+    refresh();
 
-    //    if (my->royalStraightFlush)
-//        std::cout << "Royal straight flush" << "\n\r";
-//    if (my->hasAceKing)
-//        std::cout << "Last Two Ace King" << "\n\r";
-//    if (my->fourOfAKind)
-//        std::cout << "Four of a Kind" << "\n\r";
-//    if (my->threeOfAKind)
-//        std::cout << "Three of a kind" << "\n\r";
-//    if (my->straight)
-//        std::cout << "Straight" << "\n\r";
-//    if (my->flush)
-//        std::cout << "Flush" << "\n\r";
-//    if (my->fullHouse)
-//        std::cout << "Player has full house" << "\n\r";
     if (my->pairs > 1) {
-        my->coins+=2;
-        clrtoeol();
+        my->coins+=my->currentBet*2;
+        werase(score);
+        mvwprintw(score, 1,1, "2 PAIR");
+        // add earnings
+        wrefresh(score);
     }
 
-    move(10,10);
-    mvprintw(10,10, "my pairs %d", my->pairs);
-//        std::cout << "Player has " << my.pairs << ((my.pairs == 1) ? " pair" : " pairs") << "\n\r";
+    if (my->threeOfAKind) {
+        my->coins+=my->currentBet*3;
+        werase(score);
+        mvwprintw(score, 1,1, "3 OF A KIND");
+        // add earnings
+        wrefresh(score);
+    }
+
+    if (my->straight) {
+        werase(score);
+        if (my->flush) {
+            my->flush = false;
+
+            if (my->royalStraightFlush) {
+                switch (my->currentBet) {
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                        my->coins += my->currentBet * 250;
+                    case 5:
+                        my->coins += my->currentBet * 800;
+
+                }
+                mvwprintw(score, 1, 1, "ROYAL FLUSH");
+
+            } else {
+                switch (my->currentBet) {
+                    case 1:
+                    case 2:
+                        my->coins += my->currentBet * 50;
+                    case 3:
+                    case 4:
+                    case 5:
+                        my->coins += my->currentBet * 100;
+
+                }
+                mvwprintw(score, 1, 1, "STRAIGHT FLUSH");
+            }
+        } else {
+            my->coins+=my->currentBet*4;
+            mvwprintw(score, 1,1, "STRAIGHT");
+        }
+        // add earnings
+        wrefresh(score);
+    }
+
+    if (my->flush) {
+        my->coins+=my->currentBet*6;
+        werase(score);
+        mvwprintw(score, 1,1, "FLUSH");
+        // add earnings
+        wrefresh(score);
+    }
+
+    if (my->fullHouse) {
+        my->coins+=my->currentBet*9;
+        werase(score);
+        mvwprintw(score, 1,1, "FULL HOUSE");
+        // add earnings
+        wrefresh(score);
+    }
+
+    if (my->fourOfAKind) {
+        my->coins+=my->currentBet*25;
+        werase(score);
+        mvwprintw(score, 1,1, "FOUR OF A KIND");
+        // add earnings
+        wrefresh(score);
+    }
+
+    // add highs (jacks and up)
 
 }
 
@@ -226,7 +260,7 @@ void poker::checkForHand(player *my) {
     for (size_t j = 0; j < 4; ++j) {
         my->flush |= my->suitValue[j] == 5;
     }
-    //     unsigned int faceValue[13] = {1,0,0,0,0,0,0,0,0,1,1,1,1},
+
     // Check for royal flush
     for (size_t k = 0; k < 10 && !my->straight; ++k) {
         // A straight implies that there are 5 '1's in a row, so an & operator on all of them should result in a 1.
@@ -241,7 +275,7 @@ void poker::checkForHand(player *my) {
                      my->faceValue [0] == 1;
 }
 
-void poker::initGame(std::string faceValue[52], wchar_t *suitValue[4], bool deck[52]) {
+void poker::initGame(std::string faceValue[52], const wchar_t *suitValue[4], bool deck[52]) {
     initscr();
 
     setlocale(LC_ALL,"");
@@ -303,6 +337,13 @@ void poker::resetPlayer(poker::player *my) {
     my->fullHouse = false;
 }
 
+/**
+ * This function creates the bet window that allows the user to input a new bet from 1 to 5.
+ * User can use KEY_LEFT and KEY_RIGHT to increment/decrement the bet. Upon pressing KEY_ENTER,
+ * the function returns the displayed bet.
+ *
+ * @return
+ */
 int poker::makeBet() {
     unsigned int height = 3,
                  width = 16,
@@ -331,6 +372,8 @@ int poker::makeBet() {
                 break;
             case KEY_F(1):
             case 10:
+                wclear(bet);
+                refresh();
                 return wager;
 
             default:
