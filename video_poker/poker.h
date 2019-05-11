@@ -34,6 +34,7 @@ namespace poker{
 
     void main();
     void saveGame(player *me);
+    void loadGame(player *me);
     void loadCardValueAndSuits(std::string faceValue[], const wchar_t *suitValue[]);
     void shuffleDeck(bool deck[]);
     void dealAHand(bool deck[], unsigned int hand[5]);
@@ -46,7 +47,8 @@ namespace poker{
     void initGame(std::string faceValue[13], const wchar_t *suitValue[4], bool deck[52]);
     void exitGame();
     void resetPlayer(player *my);
-    int makeBet();
+    int playGame(player *me);
+    void discard();
 
 
 

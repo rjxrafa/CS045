@@ -18,18 +18,13 @@ void poker::main() {
     while(me.coins > 0) {
 
         displayCoins(&me);
-        me.currentBet = makeBet();
+        me.currentBet = playGame(&me);
         me.coins -= me.currentBet;
         dealAHand(deck,hand);
         displayHand(hand, suitValue, faceValue);
         scoreHand(hand, &me);
         displayScore(&me);
         displayCoins(&me);
-        saveGame(&me);
-        std::fstream out;
-        out.open("asdf.txt");
-        out<< "hello ";
-        out.close();
 
     }
 
@@ -97,7 +92,7 @@ void poker::dealAHand(bool *deck, unsigned int *hand) {
 }
 
 void poker::displayHand(unsigned int *hand, const wchar_t **suitValue, std::string *faceValue) {
-    int height = 6,
+    int height = 5,
         width = 5+3,
         xpos = 16,
         ypos = 14,
@@ -105,9 +100,10 @@ void poker::displayHand(unsigned int *hand, const wchar_t **suitValue, std::stri
 
     for (unsigned int i = 0; i < 5; ++i) {
         WINDOW * card = newwin(height, width, ypos, xpos+(spacing*i));
-        box(card, 0, 0);
-        mvwaddstr(card, 1,1, faceValue[hand[i]%13].c_str());
-        mvwaddwstr(card, 2,1, suitValue[hand[i]/13]);
+        wbkgd(card, A_STANDOUT);
+//        box(card, 0, 0);
+        mvwaddstr(card, 0,1, faceValue[hand[i]%13].c_str());
+        mvwaddwstr(card, 1,1, suitValue[hand[i]/13]);
         refresh();
         wrefresh(card);
     }
@@ -242,6 +238,7 @@ void poker::checkForHand(player *my) {
 void poker::initGame(std::string faceValue[52], const wchar_t *suitValue[4], bool deck[52]) {
     initscr();
     setlocale(LC_ALL,"");
+    start_color();
     cbreak();
     keypad(stdscr, TRUE);
     curs_set(0);
@@ -307,19 +304,23 @@ void poker::resetPlayer(poker::player *my) {
  *
  * @return
  */
-int poker::makeBet() {
+int poker::playGame(player *me) {
     unsigned int height = 3,
                  width = 16,
                  posy = 0,
                  posx = 0;
     WINDOW * bet = newwin(height, width, posy, posx);
+    WINDOW * menu = newwin(height, width, 3, posx+2);
     box(bet, 0, 0);
 
     unsigned int wager = 1,
                  input;
 
+    mvwprintw(menu, 1,1, "F1 - SAVE"
+                         "\n F2 - LOAD");
     mvwprintw(bet, 1,1, "  BET: < %d >", wager);
     wrefresh(bet);
+    wrefresh(menu);
     refresh();
 
     while (1) {
@@ -333,11 +334,17 @@ int poker::makeBet() {
             if (wager < 5)
                 wager++;
                 break;
-            case KEY_F(1):
             case 10:
                 wclear(bet);
                 refresh();
                 return wager;
+
+            case KEY_F(1):
+                saveGame(me);
+                break;
+            case KEY_F(2):
+                loadGame(me);
+                break;
 
             default:
                 break;
@@ -349,13 +356,83 @@ int poker::makeBet() {
 
 }
 
+/**
+ * This function saves the current game state to a file named "poker.dat"
+ *
+ * @param me
+ */
 void poker::saveGame(poker::player *me) {
 
     std::ofstream out;
 
-    out.open("poker.txt");
+    unsigned int height = 3,
+                 width  = 20,
+                 xpos   = getmaxx(stdscr)/2-10,
+                 ypos   = 5;
 
-    out << me->coins;
+
+    WINDOW *gameState = newwin(height, width, ypos, xpos);
+    box(gameState,0,0);
+
+    out.open("poker.dat");
+
+    if (out.fail()) {
+        mvwprintw(gameState, 1, width/2-6, "Save failed!");
+    } else {
+        mvwprintw(gameState, 1, width/2-5, "Game saved!");
+        out << me->coins;
+        displayCoins(me);
+    }
+
+    wrefresh(gameState);
+    refresh();
+    getch();
+    wclear(gameState);
+    refresh();
     out.close();
-    std::cout << "file saved";
+
+}
+
+/**
+ * This function loads a save state from an input file named poker.dat
+ *
+ * @param me
+ */
+void poker::loadGame(poker::player *me) {
+    unsigned int height = 3,
+                 width = 20,
+                 xpos = getmaxx(stdscr)/2-10,
+                 ypos = 5;
+
+    WINDOW * gameState = newwin(height, width, ypos, xpos);
+    box(gameState,0,0);
+
+    std::ifstream in;
+
+    in.open("poker.dat");
+
+    if (in.fail()) {
+        mvwprintw(gameState, 1,width/2-9, "No save file found!");
+    } else {
+        if (in >> me->coins && me->coins > 0) {
+            mvwprintw(gameState, 1,width/2-6, "Game loaded!");
+
+        } else
+            mvwprintw(gameState, 1,width/2-6, "Load failed!");
+    }
+
+    wrefresh(gameState);
+    refresh();
+    displayCoins(me);
+    getch();
+    werase(gameState);
+    wrefresh(gameState);
+    refresh();
+
+
+
+}
+
+void poker::discard() {
+
 }
