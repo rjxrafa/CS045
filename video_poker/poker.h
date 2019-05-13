@@ -11,7 +11,12 @@
 #include <iostream>
 #include <fstream>
 #include <locale.h>
-#include <ncursesw/ncurses.h>
+
+#ifdef __APPLE__
+    #include <ncurses.h>
+#elif defined _WIN32 || defined _WIN64
+    #include <ncursesw/ncurses.h>
+#endif
 
 namespace poker{
 
@@ -49,8 +54,6 @@ namespace poker{
     void resetPlayer(player *my);
     int playGame(player *me);
     void discard();
-
-
 
 }
 

@@ -3,13 +3,13 @@ project(CS045)
 
 set(CMAKE_CXX_STANDARD 14)
 
-# includes
-include_directories(sieve_of_eratosthenes)
-include_directories(video_poker)
-
 
 # find libraries
 find_package(Curses REQUIRED)
+
+# includes
+include_directories(sieve_of_eratosthenes)
+include_directories(video_poker)
 
 # set user variables
 set(SOURCES     sieve_of_eratosthenes/sieve.cpp

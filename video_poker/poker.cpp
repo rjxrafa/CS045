@@ -237,7 +237,8 @@ void poker::checkForHand(player *my) {
 
 void poker::initGame(std::string faceValue[52], const wchar_t *suitValue[4], bool deck[52]) {
     initscr();
-    setlocale(LC_ALL,"");
+    setlocale(LC_ALL,"en_US.UTF-8");
+//    setlocale(LC_ALL,"");
     start_color();
     cbreak();
     keypad(stdscr, TRUE);
